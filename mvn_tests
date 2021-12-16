@@ -1,0 +1,32 @@
+FROM ubuntu-jdk-mvn
+LABEL "Author"="Aleksandrs Cikinovs"
+LABEL "Company"="TestDevLab" 
+LABEL "email"="aleksandrs.cikinovs@testdevlab.com"
+LABEL version="1.0"
+LABEL description="This is the Dockerfile file \
+ contain test code and maven dependencies."
+
+ARG BRANCH=main
+ENV BRANCH_IS=${BRANCH}
+
+# install needed tools
+RUN apt install wget -y
+RUN apt install unzip 
+
+# create root dir for stuff
+WORKDIR /docker
+
+# copy stuff
+RUN wget https://github.com/AleksGeste/ui-automation/archive/refs/heads/${BRANCH}.zip
+RUN unzip ${BRANCH}.zip
+RUN rm ${BRANCH}.zip
+RUN mv ui-automation-main/* .
+# CMD "rm -r ui-automation-main"
+RUN rm -r ui-automation-main
+RUN mvn dependency:resolve
+RUN mvn clean install -DskipTests
+
+# to triger smthing
+# CMD "--version"
+# ENTRYPOINT [ "./apimation" ]
+
