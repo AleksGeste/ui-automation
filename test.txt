@@ -1,1 +1,0 @@
-- Create image based on ubuntu with JDK and maven -> Done

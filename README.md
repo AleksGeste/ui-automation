@@ -55,6 +55,8 @@ docker run --rm -it --name mvn_tests mvn_tests
 # to check entrypoint version 
 #docker run --rm -it --entrypoint mvn --name mvn_tests mvn_tests -version
 
+# build
+docker build --no-cache -t acikinovs/mvn_tests:latest -f mvn_tests .
 # push to docker hub
 docker push acikinovs/mvn_tests:latest
 
@@ -64,3 +66,33 @@ docker images | grep ubuntu
 # create image with no command histore
 # docker commit {name_of_running_container}
 # that will allow us to run that container with installed stuff
+
+
+# Day 3
+## Setup Selenium Grid and Nodes which is going to be used during execution of automated tests so that you would have containerized environment for tests to run.
+- Run commands to see that everything is there where it was left off
+```
+home@aleks ui-automation % docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+home@aleks ui-automation % docker ps -a
+CONTAINER ID   IMAGE         COMMAND    CREATED      STATUS                  PORTS     NAMES
+6610735943b0   hello-world   "/hello"   2 days ago   Exited (0) 2 days ago             infallible_swartz
+home@aleks ui-automation % docker images
+REPOSITORY            TAG       IMAGE ID       CREATED        SIZE
+acikinovs/mvn_tests   latest    c50cfd78cf30   27 hours ago   841MB
+ubuntu-jdk-mvn        latest    85be2a52c2fe   27 hours ago   790MB
+ubuntu                hirsute   d662230a2592   13 days ago    80MB
+hello-world           latest    feb5d9fea6a5   2 months ago   13.3kB
+```
+
+- Create yml file with name docker-compose.yml in the roo folder
+``` code```
+- somthig more
+- run container from your previously built image
+```docker run -it --network=test-automation-setup acikinovs/mvn_tests mvn clean test -Dbrowser=chrome -DgridURL=selenium/hub:4444```
+
+### day 3 task done
+
+# Need to do:
+1. Choose your preferred CI/CD tool (you can also take one outside the scope of our course if you are familiar with others) and set up proof of concept for the client web application CI/CD process:
+2. Clear and refactor readme file
