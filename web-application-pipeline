@@ -5,6 +5,11 @@ pipeline {
         pollSCM('*/1 * * * *')
     }
     stages {
+        when {
+           anyOf {
+                changeset "/**"
+            }
+        }
         // stage which build image according to specified file 
         stage('build-ubuntu-jdk-mvn') {
             steps {
