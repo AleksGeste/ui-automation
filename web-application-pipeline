@@ -1,15 +1,10 @@
 pipeline {
     agent any
     // triger every minute check for changes
-    triggers {
-        pollSCM('*/1 * * * *')
-    }
+    // triggers {
+    //     pollSCM('*/1 * * * *')
+    // }
     stages {
-        // when {
-        //    anyOf {
-        //         changeset "/**"
-        //     }
-        // }
         // stage which build image according to specified file 
         stage('build-ubuntu-jdk-mvn') {
             steps {
