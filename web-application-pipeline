@@ -1,29 +1,29 @@
 pipeline {
     agent any
     stages { 
-        stage('build-stage') {
+        stage('build') {
             steps {
-                echo "Building web application. build-stage"
+                echo "Building web application. build"
             }
         }
-        stage('deploy-staging-environment-stage') {
+        stage('deploy-staging-environment') {
             steps {
-                echo "Building web application. deploy-staging-environment-stage"
+                echo "Building web application. deploy-staging-environment"
             }
         }
         stage('test-staging-environment-stage') {
             steps {
-                echo "Building web application. test-staging-environment-stage"
+                echo "Building web application. test-staging-environment"
             }
         }
         stage('deploy-production-environment-stage') {
             steps {
-                echo "Building web application. deploy-production-environment-stage"
+                echo "Building web application. deploy-production-environment"
             }
         }
         stage('test-production-environment-stage') {
             steps {
-                echo "Building web application. test-production-environment-stage"
+                echo "Building web application. test-production-environment"
             }
         }
     }
