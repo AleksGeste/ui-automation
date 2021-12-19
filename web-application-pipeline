@@ -9,34 +9,70 @@ pipeline {
                 }
             }
         }
-        stage('deploy-staging-environment') {
+        stage('start-selenium-env') {
             steps {
-                script{
-                    deployAndSendNotification("staging")
-                }
-            }
-        }
-        stage('test-staging-environment') {
-            steps {
-                script{
-                    test("staging")
-                    sendNotification("test-staging-deployment", "success")
-                }
-            }
-        }
-        stage('deploy-production-environment') {
-            steps {
-                script{
-                    deployAndSendNotification("production")
-                }
-            }
-        }
-        stage('test-production-environment') {
-            steps {
-                script{
-                    test("production")
-                    sendNotification("test-production-deployment", "success")
+                script {
+                    startSelenium()
+                    sendNotification("start-selenium-env", "success")
 
+                }
+            }
+        }        
+        stage('deploy-staging-env') {
+            steps {
+                script{
+                    deploySendNotification("staging")
+                }
+            }
+        }
+        stage('test-staging-env') {
+            parallel {
+                stage('test-staging-chrome') {
+                    steps {
+                        script {
+                            runTestsGetReport("staging-chrome")
+                        }
+                    }
+                }
+                stage('test-staging-firefox') {
+                    steps {
+                        script {
+                            runTestsGetReport("staging-firefox")
+                        }
+                    }
+                }
+            }            
+        }
+        stage('deploy-production-env') {
+            steps {
+                script{
+                    deploySendNotification("production")
+                }
+            }
+        }
+        stage('test-production-env') {
+            parallel {
+                stage('test-production-chrome') {
+                    steps {
+                        script {
+                            runTestsGetReport("production-chrome")
+                        }
+                    }
+                }
+                stage('test-production-firefox') {
+                    steps {
+                        script {
+                            runTestsGetReport("production-firefox")
+                        }
+                    }
+                }
+            }
+        }
+        stage('stop-selenium-env') {
+            steps {
+                script {
+                    stopSelenium()
+                    sendNotification("stop-selenium-env", "success")
                 }
             }
         }
@@ -49,7 +85,7 @@ def deploy(String env) {
 
 def test(String env) {
     echo "Running tests on ${env} environment ..."
-    // sh "docker pull acikinovs/mvn_tests:latest"
+    sh "docker pull acikinovs/mvn_tests:latest"
 }
 
 def sendNotification(String env, String status) {
@@ -60,7 +96,7 @@ def sendNotification(String env, String status) {
     }
 }
 
-def deployAndSendNotification(String env) {
+def deploySendNotification(String env) {
     try {
         deploy(env)
     } catch (error) {
@@ -68,5 +104,46 @@ def deployAndSendNotification(String env) {
         error("Deployment to ${env} failed")
     } finally {
         sendNotification("${env}-deployment", "success")
+    }
+}
+
+def startSelenium() {
+    sh "docker run -d -p 4442-4444:4442-4444 --net test-automation-setup --rm --name selenium-hub selenium/hub:latest"
+    sh "docker run -d --rm --name chrome --net test-automation-setup -e SE_EVENT_BUS_HOST=selenium-hub -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 selenium/node-chrome:latest"
+    sh "docker run -d --rm --name firefox --net test-automation-setup -e SE_EVENT_BUS_HOST=selenium-hub -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 selenium/node-firefox:latest"
+}
+
+def stopSelenium() {
+    sh "docker rm -f selenium-hub"
+    sh "docker rm -f chrome"
+    sh "docker rm -f firefox"
+}
+
+def runTestsGetReport(String testingEnv) {
+    test(testingEnv)
+    try {
+        sh "docker run -d -t --network=test-automation-setup --name mvn-tests-${testingEnv} acikinovs/mvn_tests:latest"
+        sh "docker exec mvn-tests-${testingEnv} mvn clean test -Dbrowser=chrome -DgridURL=selenium-hub:4444"
+        sh "docker exec mvn-tests-${testingEnv} mvn io.qameta.allure:allure-maven:report"
+        sh "docker exec mvn-tests-${testingEnv} rm -rf test-output/*"
+        sh "docker exec mvn-tests-${testingEnv} cp -R target/site/allure-maven-plugin test-output"
+    } catch (error) {
+        sendNotification("testing-${testingEnv}", "failure")
+        error("Testing on ${testingEnv} environment failed")
+    } finally {
+        sendNotification("testing-${testingEnv}", "success")
+        sh "docker cp mvn-tests-${testingEnv}:/docker/test-output/allure-maven-plugin/index.html report-${testingEnv}.html"
+        sh "docker rm -f mvn-tests-${testingEnv}"
+        publishHTML(
+            [
+                allowMissing: false, 
+                alwaysLinkToLastBuild: false,
+                keepAll: false, 
+                reportDir: '', 
+                reportFiles: "report-${testingEnv}.html", 
+                reportName: "Test report for ${testingEnv}",
+                reportTitles: ''
+            ]
+        )
     }
 }
