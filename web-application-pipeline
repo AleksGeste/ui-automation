@@ -132,7 +132,7 @@ def runTestsGetReport(String testingEnv) {
         error("Testing on ${testingEnv} environment failed")
     } finally {
         sendNotification("testing-${testingEnv}", "success")
-        sh "docker cp mvn-tests-${testingEnv}:/test-output/allure-maven-plugin/index.html report-${testingEnv}.html"
+        sh "docker cp mvn-tests-${testingEnv}:/docker/test-output/allure-maven-plugin/index.html report-${testingEnv}.html"
         sh "docker rm -f mvn-tests-${testingEnv}"
         publishHTML(
             [
