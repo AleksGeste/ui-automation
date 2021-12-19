@@ -108,22 +108,22 @@ def deploySendNotification(String env) {
 }
 
 def startSelenium() {
-    sh "docker run -d -p 4442-4444:4442-4444 --net test-automation-setup --rm --name selenium-hub selenium/hub:latest"
-    sh "docker run -d --rm --name chrome --net test-automation-setup -e SE_EVENT_BUS_HOST=selenium-hub -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 selenium/node-chrome:latest"
-    sh "docker run -d --rm --name firefox --net test-automation-setup -e SE_EVENT_BUS_HOST=selenium-hub -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 selenium/node-firefox:latest"
+    sh "docker run -d -p 4442-4444:4442-4444 --net test-automation-setup --rm --name selenium-hub-node selenium/hub:latest"
+    sh "docker run -d --rm --name chrome-node --net test-automation-setup -e SE_EVENT_BUS_HOST=selenium-hub-node -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 selenium/node-chrome:latest"
+    sh "docker run -d --rm --name firefox-node --net test-automation-setup -e SE_EVENT_BUS_HOST=selenium-hub-node -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 selenium/node-firefox:latest"
 }
 
 def stopSelenium() {
-    sh "docker rm -f selenium-hub"
-    sh "docker rm -f chrome"
-    sh "docker rm -f firefox"
+    sh "docker rm -f selenium-hub-node"
+    sh "docker rm -f chrome-node"
+    sh "docker rm -f firefox-node"
 }
 
 def runTestsGetReport(String testingEnv) {
     test(testingEnv)
     try {
         sh "docker run -d -t --network=test-automation-setup --name mvn-tests-${testingEnv} acikinovs/mvn_tests:latest"
-        sh "docker exec mvn-tests-${testingEnv} mvn clean test -Dbrowser=chrome -DgridURL=selenium-hub:4444"
+        sh "docker exec mvn-tests-${testingEnv} mvn clean test -Dbrowser=chrome -DgridURL=selenium-hub-node:4444"
         sh "docker exec mvn-tests-${testingEnv} mvn io.qameta.allure:allure-maven:report"
         sh "docker exec mvn-tests-${testingEnv} rm -rf test-output/*"
         sh "docker exec mvn-tests-${testingEnv} cp -R target/site/allure-maven-plugin test-output"
