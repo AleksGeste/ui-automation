@@ -1,21 +1,29 @@
 pipeline {
     agent any
-    // triger every minute check for changes
-    triggers {
-        pollSCM('*/1 * * * *')
-    }
-    stages {
-        // stage which build image according to specified file 
-        stage('build-ubuntu-jdk-mvn') {
+    stages { 
+        stage('build-stage') {
             steps {
-                sh "docker build -t ubuntu-jdk-mvn . -f ubuntu-jdk-mvn"
+                echo "Building web application. build-stage"
             }
         }
-        stage('build-mvn-tests') {
-            // stage which build image and also push changes to docker hub
+        stage('deploy-staging-environment-stage') {
             steps {
-                sh "docker build -t acikinovs/mvn_tests:latest . -f mvn_tests"
-                sh "docker push acikinovs/mvn_tests:latest"
+                echo "Building web application. deploy-staging-environment-stage"
+            }
+        }
+        stage('test-staging-environment-stage') {
+            steps {
+                echo "Building web application. test-staging-environment-stage"
+            }
+        }
+        stage('deploy-production-environment-stage') {
+            steps {
+                echo "Building web application. deploy-production-environment-stage"
+            }
+        }
+        stage('test-production-environment-stage') {
+            steps {
+                echo "Building web application. test-production-environment-stage"
             }
         }
     }
