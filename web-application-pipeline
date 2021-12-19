@@ -108,6 +108,9 @@ def deploySendNotification(String env) {
 }
 
 def startSelenium() {
+    // delete existitng 
+    sh "docker container rm -f firefox-node chrome-node selenium-hub-node mvn-tests-staging-firefox mvn-tests-staging-chrome"
+
     sh "docker run -d -p 4442-4444:4442-4444 --net test-automation-setup --rm --name selenium-hub-node selenium/hub:latest"
     sh "docker run -d --rm --name chrome-node --net test-automation-setup -e SE_EVENT_BUS_HOST=selenium-hub-node -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 selenium/node-chrome:latest"
     sh "docker run -d --rm --name firefox-node --net test-automation-setup -e SE_EVENT_BUS_HOST=selenium-hub-node -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 selenium/node-firefox:latest"
