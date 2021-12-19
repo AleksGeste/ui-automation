@@ -8,23 +8,40 @@ pipeline {
         }
         stage('deploy-staging-environment') {
             steps {
-                echo "Building web application. deploy-staging-environment"
+                script{
+                    deploy("staging")
+                }
             }
         }
-        stage('test-staging-environment-stage') {
+        stage('test-staging-environment') {
             steps {
-                echo "Building web application. test-staging-environment"
+                script{
+                    test("staging")
+                }
             }
         }
-        stage('deploy-production-environment-stage') {
+        stage('deploy-production-environment') {
             steps {
-                echo "Building web application. deploy-production-environment"
+                script{
+                    deploy("production")
+                }
             }
         }
-        stage('test-production-environment-stage') {
+        stage('test-production-environment') {
             steps {
-                echo "Building web application. test-production-environment"
+                script{
+                    test("production")
+                }
             }
         }
     }
+}
+
+def deploy(String env) {
+    echo "Deployment to ${env} environment triggered ..."
+}
+
+def test(String env) {
+    echo "Running tests on ${env} environment ..."
+    // sh "docker pull acikinovs/mvn_tests:latest"
 }
