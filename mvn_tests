@@ -15,9 +15,6 @@ RUN apt install wget -y
 RUN apt install unzip 
 
 # create root dir for stuff
-# WORKDIR /docker
-RUN mkdir docker
-COPY . ./docker/
 WORKDIR /docker
 
 # copy stuff
