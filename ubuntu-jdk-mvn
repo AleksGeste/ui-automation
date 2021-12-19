@@ -10,5 +10,3 @@ RUN apt update
 RUN apt upgrade -y
 RUN apt install default-jdk -y
 RUN apt install maven -y
-
-

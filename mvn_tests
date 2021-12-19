@@ -30,4 +30,3 @@ RUN mvn clean install -DskipTests
 # to triger smthing
 # CMD "--version"
 # ENTRYPOINT [ "./apimation" ]
-
