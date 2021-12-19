@@ -14,8 +14,6 @@ fi
 
 # Send notification
 curl -X POST \
-  # https://discordapp.com/api/webhooks/651765119101042689/JhoCn787dYW2s8c9CkqdYYizHTgUx9VT5pX65iCMfwYnC63C3Lc3tDGJsq0pnem3CD7B \
-  # https://discordapp.com/api/webhooks/921929436314603531/JhoCn787dYW2s8c9CkqdYYizHTgUx9VT5pX65iCMfwYnC63C3Lc3tDGJsq0pnem3CD7B \
   https://discord.com/api/webhooks/921934267976663051/O2iAAxirYAZBLO7WWoq7uNrbMhtG94MAiyZhaM7Z-BrNVxEzRvLjahjT-OZsq2QC8Ffh \
   -H 'Cache-Control: no-cache' \
   -H 'Content-Type: application/json' \
