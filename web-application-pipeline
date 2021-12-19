@@ -3,13 +3,13 @@ pipeline {
     stages { 
         stage('build') {
             steps {
-                echo "Building web application. build"
+                echo "Building web application ..."
             }
         }
         stage('deploy-staging-environment') {
             steps {
                 script{
-                    deploy("staging")
+                    deployAndSendNotification("staging")
                 }
             }
         }
@@ -23,7 +23,7 @@ pipeline {
         stage('deploy-production-environment') {
             steps {
                 script{
-                    deploy("production")
+                    deployAndSendNotification("production")
                 }
             }
         }
@@ -44,4 +44,23 @@ def deploy(String env) {
 def test(String env) {
     echo "Running tests on ${env} environment ..."
     // sh "docker pull acikinovs/mvn_tests:latest"
+}
+
+def sendNotification(String env, String status) {
+    if (status == "success") {
+        sh "bash send_notification.sh ${env} 0"
+    } else {
+        sh "bash send_notification.sh ${env} 1"
+    }
+}
+
+def deployAndSendNotification(String env) {
+    try {
+        deploy(env)
+    } catch (error) {
+        sendNotification("${env}-deployment", "failure")
+        error("Deployment to ${env} failed")
+    } finally {
+        sendNotification("${env}-deployment", "success")
+    }
 }
