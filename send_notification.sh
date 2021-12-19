@@ -20,18 +20,3 @@ curl -X POST \
   -d '{
 	"content":"'"$MESSAGE"'"
 }'
-
-
-# #!/bin/bash
-
-# # update the TOKEN and the CHANNELID, rest is optional
-# # you may need to connect with a websocket the first time you run the bot
-# #   use a library like discord.py to do so
-
-# curl -v \
-# -H "Authorization: Bot OTIxOTMwMzE5MzI4ODU0MDg3.Yb6EhA.y1h2bV1yCBgxBiXZsYMIIruHRf4" \
-# -H "User-Agent: myBotThing (http://some.url, v0.1)" \
-# -H "Content-Type: application/json" \
-# -X POST \
-# -d '{"content":"Posting as a bot"}' \
-# https://discordapp.com/api/channels/921934267976663051/messages

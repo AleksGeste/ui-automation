@@ -4,6 +4,9 @@ pipeline {
         stage('build') {
             steps {
                 echo "Building web application ..."
+                script{
+                    sendNotification("build-stage", "success")
+                }
             }
         }
         stage('deploy-staging-environment') {
@@ -17,6 +20,7 @@ pipeline {
             steps {
                 script{
                     test("staging")
+                    sendNotification("test-staging-deployment", "success")
                 }
             }
         }
@@ -31,6 +35,8 @@ pipeline {
             steps {
                 script{
                     test("production")
+                    sendNotification("test-production-deployment", "success")
+
                 }
             }
         }
