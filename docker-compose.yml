@@ -1,13 +1,13 @@
-version: '3.8'
+version: "3.8"
 services:
   selenium-hub:
     image: selenium/hub:latest
     container_name: selenium-hub
     ports:
-    - 4444:4444
+      - 4444:4444
     networks:
       - test-automation-setup
-  
+
   chrome:
     image: selenium/node-chrome:latest
     container_name: chrome
@@ -16,10 +16,10 @@ services:
     depends_on:
       - selenium-hub
     environment:
-    - SE_EVENT_BUS_HOST=selenium-hub
-    - SE_EVENT_BUS_PUBLISH_PORT=4442
-    - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-  
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+
   firefox:
     image: selenium/node-firefox:latest
     container_name: firefox
@@ -28,34 +28,40 @@ services:
     depends_on:
       - selenium-hub
     environment:
-    - SE_EVENT_BUS_HOST=selenium-hub
-    - SE_EVENT_BUS_PUBLISH_PORT=4442
-    - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-  
-  mvn-tests:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+
+  mvn-tests-chrome:
+    container_name: mvn_tests_chrome
     image: acikinovs/mvn_tests:latest
-    container_name: mvn-tests
+    depends_on:
+      - chrome
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
     networks:
       - test-automation-setup
+    command: bash -c "mvn clean test -Dbrowser=chrome -DgridURL=selenium-hub:4444 && mvn io.qameta.allure:allure-maven:report && rm -rf allure_test_results/* && cp -r target/allure-results/* allure_test_results"
+    volumes:
+      - $PWD/allure_test_results/chrome:/docker/allure_test_results/
+
+  mvn-tests-firefox:
+    container_name: mvn_tests_firefox
+    image: acikinovs/mvn_tests:latest
     depends_on:
-      - selenium-hub
-      - chrome
       - firefox
     environment:
-    - SE_EVENT_BUS_HOST=selenium-hub
-    - SE_EVENT_BUS_PUBLISH_PORT=4442
-    - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+    networks:
+      - test-automation-setup
+    command: bash -c "mvn clean test -Dbrowser=firefox -DgridURL=selenium-hub:4444 && mvn io.qameta.allure:allure-maven:report && rm -rf allure_test_results/* && cp -r target/allure-results/* allure_test_results"
     volumes:
-      - $PWD/test-output:/docker/test-output
-    command: >
-      bash -c "
-      mvn clean test -Dbrowser=chrome -DgridURL=selenium-hub:4444
-      && mvn io.qameta.allure:allure-maven:report
-      && rm -rf test-output/* 
-      && cp -r target/site/allure-maven-plugin test-output
-      "
+      - $PWD/allure_test_results/firefox:/docker/allure_test_results/
 
 networks:
   test-automation-setup:
     external: true
-    

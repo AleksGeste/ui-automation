@@ -7,23 +7,27 @@ LABEL description="This is the Dockerfile file \
  contain test code and maven dependencies."
 
 # created just for test reasone
-ARG BRANCH=main
-ENV BRANCH_IS=${BRANCH}
+# ARG BRANCH=main
+# ENV BRANCH_IS=${BRANCH}
 
 # install needed tools
-RUN apt install wget -y
-RUN apt install unzip 
+# RUN apt install wget -y
+# RUN apt install unzip 
 
 # create root dir for stuff
+RUN mkdir docker
 WORKDIR /docker
 
 # copy stuff
-RUN wget https://github.com/AleksGeste/ui-automation/archive/refs/heads/${BRANCH}.zip
-RUN unzip ${BRANCH}.zip
-RUN rm ${BRANCH}.zip
-RUN mv ui-automation-main/* .
-# CMD "rm -r ui-automation-main"
-RUN rm -r ui-automation-main
+# RUN wget https://github.com/AleksGeste/ui-automation/archive/refs/heads/${BRANCH}.zip
+# RUN unzip ${BRANCH}.zip
+# RUN rm ${BRANCH}.zip
+# RUN mv ui-automation-main/* .
+# RUN rm -r ui-automation-main
+
+
+COPY . .
+
 RUN mvn dependency:resolve
 RUN mvn clean install -DskipTests
 
